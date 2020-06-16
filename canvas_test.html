@@ -1,0 +1,338 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="apple-touch-icon" type="image/png" href="https://static.codepen.io/assets/favicon/apple-touch-icon-5ae1a0698dcc2402e9712f7d01ed509a57814f994c660df9f7a952f3060705ee.png" />
+<meta name="apple-mobile-web-app-title" content="CodePen">
+<link rel="shortcut icon" type="image/x-icon" href="https://static.codepen.io/assets/favicon/favicon-aec34940fbc1a6e787974dcd360f2c6b63348d4b1f4e06c77743096d55480f33.ico" />
+<link rel="mask-icon" type="" href="https://static.codepen.io/assets/favicon/logo-pin-8f3771b1072e3c38bd662872f6b673a722f4b3ca2421637d5596661b4e2132cc.svg" color="#111" />
+<title>CodePen - OrderKing Receipt</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+html, body, .container-root {
+	width: 100%;
+	margin: 0;
+	font-family: 'Open Sans';
+	font-size: 10pt;
+	min-width: 375px;
+}
+
+hr {
+	border-color: #aaa;
+}
+
+.w-100 {
+	width: 100%;
+}
+
+.container-root {
+	background-color: #F7F7F7;
+	display: flex;
+	justify-content: center;
+	padding-top: 48px;
+}
+
+.container {
+	background-color: white;
+	width: 360px;
+	padding: 12px;
+	box-sizing: border-box;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.text-right {
+	text-align: right;
+}
+
+.text-truncate {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.no-wrap {
+	white-space: nowrap;
+}
+
+.left-right {
+	display: flex;
+	justify-content: space-between;
+}
+</style>
+</head>
+<body translate="no">
+<div class="container-root">
+<div class="container" id="print-root">
+<div style="text-align: center; margin-bottom: 16px; margin-top: 8px;">
+<img src="https://www.computing.psu.ac.th/th/wp-content/uploads/2018/03/COC_logo.png" width="30%">
+</div>
+<div class="text-center">
+<b>Restaurant Name</b>
+</div>
+<div class="text-center">
+Address 1
+</div>
+<div class="text-center">
+Address 2
+</div>
+<div class="text-center">
+Contact Number
+</div>
+<div class="text-center">
+Printed Dec 5, 2018 at 6:06 PM
+</div>
+<hr style="margin-top: 24px;" />
+<div class="left-right">
+<div class="w-100 no-wrap">Open Time: 5:30 PM</div>
+<div class="w-100 text-right text-truncate">Cashier: Chomtana Chanjaraswichai</div>
+</div>
+<div class="left-right">
+<div class="w-100 no-wrap"><b>Table</b>: 201, 2 guests</div>
+<div class="w-100 text-right text-truncate">Order: A-01231</div>
+</div>
+<div class="w-100 no-wrap">TAX ID: 0123456789012</div>
+<hr style="margin-bottom: 16px;" />
+<div style="display: flex; margin-bottom: 4px;">
+<div style="width: 15%; flex-basis: 15%; padding-right: 4px;">
+200
+</div>
+<div style="width: 65%; flex-basis: 65%; padding-right: 4px;">
+Custom Menu Very long name ชื่อยาวมากๆๆๆๆๆๆ
+</div>
+<div style="width: 20%; flex-basis: 20%; text-align: right;">
+40,000.00
+</div>
+</div>
+ <div style="display: flex; margin-bottom: 4px;">
+<div style="width: 15%; flex-basis: 15%; padding-right: 4px;">
+200
+</div>
+<div style="width: 65%; flex-basis: 65%; padding-right: 4px;">
+Custom Menu
+</div>
+<div style="width: 20%; flex-basis: 20%; text-align: right;">
+400,000.00
+</div>
+</div>
+<div style="display: flex; margin-bottom: 4px;">
+<div style="width: 15%; flex-basis: 15%; padding-right: 4px;">
+200
+</div>
+<div style="width: 65%; flex-basis: 65%; padding-right: 4px;">
+ชื่อภาษาไทย
+</div>
+<div style="width: 20%; flex-basis: 20%; text-align: right;">
+4,000.00
+</div>
+</div>
+<hr style="margin-top: 16px;" />
+<div class="left-right">
+<div class="w-100 no-wrap">SUBTOTAL</div>
+<div class="w-100 text-right text-truncate">375.00</div>
+</div>
+<div class="left-right" style="margin-bottom: 16px;">
+<div class="w-100 no-wrap">TAX</div>
+<div class="w-100 text-right text-truncate">15.00</div>
+</div>
+<b>
+<div class="left-right" style="margin-bottom: 16px;">
+<div style="width: 100%; font-size: 16pt;">TOTAL</div>
+<div style="font-size: 16pt;" class="w-100 text-right text-truncate">390.00</div>
+</div>
+</b>
+<div>Payment method: Cash</div>
+<div class="left-right">
+<div class="w-100 no-wrap">Cash</div>
+<div class="w-100 text-right text-truncate">500.00</div>
+</div>
+<div class="left-right">
+<div class="w-100 no-wrap">Change</div>
+<div class="w-100 text-right text-truncate">110.00</div>
+</div>
+</div>
+</div>
+<script src='https://html2canvas.hertzen.com/dist/html2canvas.min.js'></script>
+<script id="rendered-js">
+const TEXT_TRUNCATE = 	`
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+`
+
+const LEFT_RIGHT = `
+	 display: flex;
+	 justify-content: space-between;
+`
+
+function perform_print() {
+	html2canvas(document.querySelector("#print-root"), {
+		useCORS: true
+	}).then(canvas => {
+		document.body.appendChild(canvas)
+	});
+}
+
+function number_format(num) {
+	return num.toLocaleString('en', {minimumFractionDigits: 2})
+}
+
+function receipt_menu_merge(menus) {
+	let menu_dict = {}
+	for(let menu of menus) {
+		if (menu.quantity < 1) menu.quantity = 1;
+		if (!menu.productOption) continue;
+		let key = menu.id+":"+menu.productOption.map(x => x.id).join(',')
+		if (!(key in menu_dict)) {
+			menu_dict[key] = menu;
+		} else {
+			menu_dict[key].quantity++;
+		}
+	}
+	
+	return Object.values(menu_dict)
+}
+
+function rewrite(html) {
+	document.getElementById("print-root").innerHTML = html;
+}
+
+function rewrite_receipt(receipt) {
+	// receipt menus merge
+	receipt.menus = receipt_menu_merge(receipt.menus)
+	
+	let html_string = `
+		${receipt.restaurant.logoUrl ? `
+		<div style="text-align: center; margin-bottom: 16px; margin-top: 8px;">
+			<img src="${receipt.restaurant.logoUrl}" width="30%">
+		</div>
+		` : ''}
+		
+		${receipt.restaurant.name ? `
+		<div class="text-center">
+			<b>${receipt.restaurant.name}</b>
+		</div>
+		` : ''}
+	
+		${receipt.branch.branch_name ? `
+		<div class="text-center">
+			${receipt.branch.branch_name} Branch
+		</div>
+		` : ''}
+	
+		${receipt.branch.address ? `
+		<div class="text-center">
+			${receipt.branch.address}
+		</div>
+		` : ''}
+	
+		${receipt.branch.phone_number ? `
+		<div class="text-center">
+			${receipt.branch.phone_number}
+		</div>
+		` : ''}
+	
+		<div class="text-center">
+			Printed ${new Date().toLocaleString("th-TH")}
+		</div>
+		
+		<hr style="margin-top: 24px;" />
+		
+		${receipt.branch.opening_hour ? `
+		<div class="left-right">
+			<div class="w-100 no-wrap">Open Time: ${receipt.branch.opening_hour}</div>
+			<div class="w-100 text-right text-truncate"><!--Cashier: Chomtana Chanjaraswichai--></div>
+		</div>
+		` : ''}
+		
+		<div class="left-right">
+			<div class="w-100 no-wrap"><b>Table</b>: ${receipt.table.name}, ${receipt.table.guestCount} guests</div>
+			<div class="w-100 text-right text-truncate">Receipt ID #${receipt.bill.id}</div>
+		</div>
+		
+		${receipt.restaurant.taxId ? `
+		<div class="w-100 no-wrap">TAX ID: ${receipt.restaurant.taxId}</div>
+		` : ''}
+		
+		<hr style="margin-bottom: 16px;" />
+		
+		${receipt.menus.map(menu => `
+			<div style="display: flex; margin-bottom: 4px; align-items: baseline;">
+				<div style="width: 12%; flex-basis: 12%; padding-right: 4px;">
+					${menu.quantity}
+				</div>
+				<div style="width: 68%; flex-basis: 68%; padding-right: 4px;">
+					${menu.item_name}
+				</div>
+				<div style="width: 20%; flex-basis: 20%; text-align: right;">
+					${number_format(menu.quantity * menu.price)}
+				</div>
+			</div>
+
+			${menu.productOption.map(option_root => `
+				${option_root.productOptionChoices.map(option => `
+					<div style="display: flex; margin-bottom: 4px; align-items: baseline;">
+						<div style="width: 12%; flex-basis: 12%; padding-right: 4px;">
+							
+						</div>
+						<div style="width: 68%; flex-basis: 68%; padding-right: 4px;">
+							+ ${option.choice_name}
+						</div>
+						<div style="width: 20%; flex-basis: 20%; text-align: right;">
+							${number_format(menu.quantity * option.price)}
+						</div>
+					</div>
+				`).join('')}
+			`).join('')}
+		`).join('')}
+		
+		<hr style="margin-top: 16px;" />
+		
+		<div class="left-right">
+			<div class="w-100 no-wrap">SUBTOTAL</div>
+			<div class="w-100 text-right text-truncate">${number_format(receipt.bill.subTotal)}</div>
+		</div>
+		
+		<div class="left-right" style="margin-bottom: 16px;">
+			<div class="w-100 no-wrap">TAX</div>
+			<div class="w-100 text-right text-truncate">${number_format(receipt.bill.tax)}</div>
+		</div>
+		
+		<b>
+			<div class="left-right" style="margin-bottom: 16px;">
+				<div style="width: 100%; font-size: 16pt;">TOTAL</div>
+				<div style="font-size: 16pt;" class="w-100 text-right text-truncate">${number_format(receipt.bill.total)}</div>
+			</div>
+		</b>
+		
+		<div>Payment method: ${receipt.bill.paymentMethod}</div>
+		
+		<div class="left-right">
+			<div class="w-100 no-wrap">Cash</div>
+			<div class="w-100 text-right text-truncate">${number_format(receipt.bill.cash)}</div>
+		</div>
+		
+		<div class="left-right">
+			<div class="w-100 no-wrap">Change</div>
+			<div class="w-100 text-right text-truncate">${number_format(receipt.bill.change)}</div>
+		</div>
+
+		${receipt.restaurant.receiptFooter ? `
+		<div style="margin-top: 16px; margin-bottom: 8px; text-align: center; white-space: pre-line;">
+			${receipt.restaurant.receiptFooter}
+		</div>
+		` : ''}
+	`
+	
+	rewrite(html_string)
+}
+rewrite_receipt({"branch":{"id":34,"branch_name":"Deep Learning","store_type":1,"phone_number":"0987654321","address":"497 Sukhumvit road, Silom Bangkok…","location":"string","about_us":"No more than 500 alphabets…","covered_photos":{},"opening_hour":"string","opening_days":[{"openTime":"08:00","closeTime":"08:00","visible":true},{"openTime":"08:00","closeTime":"08:00","visible":true},{"openTime":"08:00","closeTime":"08:00","visible":true},{"visible":false,"openTime":"08:00","closeTime":"08:00"},{"visible":false,"openTime":"08:00","closeTime":"08:00"},{"visible":false,"openTime":"08:00","closeTime":"08:00"},{"visible":false,"openTime":"08:00","closeTime":"08:00"}],"restaurantId":2,"photo":null,"coverPhoto":null},"restaurant":{"id":2,"name":"Ada Ramen","description":"","phone_number":"0987498270","email":"Jeremy.G@gmail.com","password":"8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"},"menus":[{"id":3,"item_name":"Taco","item_description":"","price":199,"prepareing_time_minutes":45,"category":"Europe ","branchId":1,"stationId":1,"categoryId":3,"medias":[{"id":3,"url":"https://mabaguette.s3.us-east-2.amazonaws.com/Taco_28596.jpeg","key":"-1","type":"data:image/214;base64,","productId":3}],"quantity":0,"productOption":[{"productOptionChoices":[{"id":47,"choice_name":"11a","price":0,"productOptionId":28,"switchEllipse":true}],"id":28,"option_name":"1","option_type":"Required","productId":3}]},{"id":2,"item_name":"Beer","item_description":"","price":69,"prepareing_time_minutes":30,"category":"Drinking ","branchId":1,"stationId":1,"categoryId":1,"medias":[{"id":2,"url":"https://mabaguette.s3.us-east-2.amazonaws.com/Beer_168528.jpeg","key":"200","type":"data:image/214;base64,","productId":2}],"quantity":0,"productOption":[{"productOptionChoices":[],"id":4,"option_name":"Option1","option_type":"Required","productId":2},{"productOptionChoices":[{"id":9,"choice_name":"Choice1","price":10,"productOptionId":5,"switchEllipse":true},{"id":10,"choice_name":"Choice2","price":20,"productOptionId":5,"switchEllipse":true}],"id":5,"option_name":"Option1","option_type":"Required","productId":2},{"productOptionChoices":[{"id":11,"choice_name":"Option c1","price":11,"productOptionId":6,"switchEllipse":true},{"id":12,"choice_name":"Option c2","price":12,"productOptionId":6,"switchEllipse":true},{"id":13,"choice_name":"Option c2","price":22,"productOptionId":6,"switchEllipse":true},{"id":14,"choice_name":"Option c1","price":11,"productOptionId":6,"switchEllipse":true},{"id":15,"choice_name":"Option c3","price":33,"productOptionId":6,"switchEllipse":true}],"id":6,"option_name":"Option2","option_type":"Required","productId":2}]},{"id":2,"item_name":"Beer","item_description":"","price":69,"prepareing_time_minutes":30,"category":"Drinking ","branchId":1,"stationId":1,"categoryId":1,"medias":[{"id":2,"url":"https://mabaguette.s3.us-east-2.amazonaws.com/Beer_168528.jpeg","key":"200","type":"data:image/214;base64,","productId":2}],"quantity":0,"productOption":[{"productOptionChoices":[],"id":4,"option_name":"Option1","option_type":"Required","productId":2},{"productOptionChoices":[{"id":9,"choice_name":"Choice1","price":10,"productOptionId":5,"switchEllipse":false},{"id":10,"choice_name":"Choice2","price":20,"productOptionId":5,"switchEllipse":true}],"id":5,"option_name":"Option1","option_type":"Required","productId":2},{"productOptionChoices":[{"id":11,"choice_name":"Option c1","price":11,"productOptionId":6,"switchEllipse":false},{"id":12,"choice_name":"Option c2","price":12,"productOptionId":6,"switchEllipse":true},{"id":13,"choice_name":"Option c2","price":22,"productOptionId":6,"switchEllipse":false},{"id":14,"choice_name":"Option c1","price":11,"productOptionId":6,"switchEllipse":false},{"id":15,"choice_name":"Option c3","price":33,"productOptionId":6,"switchEllipse":false}],"id":6,"option_name":"Option2","option_type":"Required","productId":2}]}],"table":{"name":"Dear","guestCount":2},"bill":{"id":63,"branchId":5,"guestId":2,"promotionId":2,"qId":4,"invoice_id":"invoice01","orderId":[135,136,137],"cashierId":2,"tableId":36,"transactionId":1,"paymentMethod":"cash","total":"531.00","signature":"https://mabaguette.s3.us-east-2.amazonaws.com/bill_928246.jpeg","guestNumber":2,"tax":"43.92","cash":531,"joinTableId":51,"create_time":"2020-06-12T04:53:32.000Z","status":"paid","remark":"string","change":"0.00","serviceCharge":3,"QRcodeCreditCard":"string","subTotal":488,"joinTime":"2020-06-12T04:50:39.000Z","reservationTime":"2020-06-12T04:50:39.000Z","modifyTime":"2020-06-12T04:53:32.000Z","discount":0,"taxRate":9,"restaurantname":null}} )
+
+window.onload = perform_print;
+    </script>
+</body>
+</html>
