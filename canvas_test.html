@@ -15,13 +15,13 @@ html, body, .container-root {
 	width: 100%;
 	margin: 0;
 	font-family: 'Open Sans';
-	font-size: 10pt;
+	font-size: 11pt;
 	min-width: 375px;
 }
 
-hr {
+/*hr {
 	border-color: #aaa;
-}
+}*/
 
 .w-100 {
 	width: 100%;
@@ -32,6 +32,7 @@ hr {
 	display: flex;
 	justify-content: center;
 	padding-top: 48px;
+	padding-bottom: 48px;
 }
 
 .container {
@@ -67,7 +68,7 @@ hr {
 </head>
 <body translate="no">
 <div class="container-root">
-<div class="container" id="print-root">
+<div class="container"><div id="print-root">
 <div style="text-align: center; margin-bottom: 16px; margin-top: 8px;">
 <img src="https://www.computing.psu.ac.th/th/wp-content/uploads/2018/03/COC_logo.png" width="30%">
 </div>
@@ -108,7 +109,7 @@ Custom Menu Very long name ชื่อยาวมากๆๆๆๆๆๆ
 40,000.00
 </div>
 </div>
- <div style="display: flex; margin-bottom: 4px;">
+<div style="display: flex; margin-bottom: 4px;">
 <div style="width: 15%; flex-basis: 15%; padding-right: 4px;">
 200
 </div>
@@ -154,9 +155,10 @@ Custom Menu
 <div class="w-100 no-wrap">Change</div>
 <div class="w-100 text-right text-truncate">110.00</div>
 </div>
-</div>
+</div></div>
 </div>
 <script src='https://html2canvas.hertzen.com/dist/html2canvas.min.js'></script>
+<script src='https://chomtana.github.io/ePOS_SDK_Sample_JavaScript/epos-2.14.0.js'></script>
 <script id="rendered-js">
 const TEXT_TRUNCATE = 	`
 	white-space: nowrap;
@@ -169,11 +171,97 @@ const LEFT_RIGHT = `
 	 justify-content: space-between;
 `
 
-function perform_print() {
+function $_GET(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+var printers = {};
+var ePosDev = new epson.ePOSDevice();
+function connectPrinter(ip_address) {
+	return new Promise((resolve, reject) => {
+		if (printers[ip_address]) return resolve(printers[ip_address]);
+		
+		ePosDev.connect(ip_address, 8008, cbConnect);
+		function cbConnect(data) {
+			if(data == 'OK') {
+				ePosDev.createDevice('local_printer', ePosDev.DEVICE_TYPE_PRINTER, {'crypto' : true, 'buffer' : false}, cbCreateDevice_printer);
+			} else {
+				//alert(data);
+				reject(data);
+			}
+		}
+		function cbCreateDevice_printer(devobj, retcode) {
+			if( retcode == 'OK' ) {
+				printers[ip_address] = devobj;
+				
+				devobj.onreceive = function (res) {
+					if (res.success) {
+						//console.log("Print success");
+						if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage("PRINT_SUCCESS")
+					} else {
+						alert("ERROR: A printing task has failed [Code: "+res.code+"]")
+					}
+					console.log('Print' + (res.success ? 'Success' : 'Failure') + '\nCode:' + res.code + '\nBattery:' + res.battery);
+				};
+				
+				devobj.onoffline = function () {
+					delete printers[ip_address];
+					alert("ERROR: Printer is offline. Please check connection or power.");
+				};
+				
+				devobj.onpoweroff = function () {
+					delete printers[ip_address];
+					alert("ERROR: Printer is powered off. Please check printer power.")
+				};
+				
+				devobj.onpapernearend = function () {
+					alert("WARNING: Paper is near end. Please refill paper.")
+				};
+				
+				devobj.onpaperend = function () {
+					alert("ERROR: No paper. Please refill paper.")
+				};
+				
+				setInterval(()=>{
+					devobj.startMonitor()
+					devobj.stopMonitor()
+				}, 1000);
+				
+				resolve(devobj);
+				//executeAddedCode();
+			} else {
+				//alert(retcode);
+				reject(retcode);
+			}
+		}
+	});
+}
+
+async function perform_print(ip_address) {
 	html2canvas(document.querySelector("#print-root"), {
-		useCORS: true
-	}).then(canvas => {
-		document.body.appendChild(canvas)
+		useCORS: true,
+		scale: 1.65
+	}).then(async canvas => {
+		//document.body.appendChild(canvas)
+		console.log(canvas.width, canvas.height)
+		
+		
+
+		let printer = await connectPrinter(ip_address);
+		
+		printer.addTextAlign(printer.ALIGN_CENTER);
+		printer.brightness = 1.0;
+		printer.halftone = printer.HALFTONE_ERROR_DIFFUSION;
+		printer.addImage(canvas.getContext('2d'), 0, 0, canvas.width, canvas.height, printer.COLOR_1, printer.MODE_GRAY16);
+		printer.addCut(printer.CUT_FEED);
+
+		printer.send();
 	});
 }
 
@@ -330,9 +418,12 @@ function rewrite_receipt(receipt) {
 	
 	rewrite(html_string)
 }
-rewrite_receipt({"branch":{"id":34,"branch_name":"Deep Learning","store_type":1,"phone_number":"0987654321","address":"497 Sukhumvit road, Silom Bangkok…","location":"string","about_us":"No more than 500 alphabets…","covered_photos":{},"opening_hour":"string","opening_days":[{"openTime":"08:00","closeTime":"08:00","visible":true},{"openTime":"08:00","closeTime":"08:00","visible":true},{"openTime":"08:00","closeTime":"08:00","visible":true},{"visible":false,"openTime":"08:00","closeTime":"08:00"},{"visible":false,"openTime":"08:00","closeTime":"08:00"},{"visible":false,"openTime":"08:00","closeTime":"08:00"},{"visible":false,"openTime":"08:00","closeTime":"08:00"}],"restaurantId":2,"photo":null,"coverPhoto":null},"restaurant":{"id":2,"name":"Ada Ramen","description":"","phone_number":"0987498270","email":"Jeremy.G@gmail.com","password":"8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"},"menus":[{"id":3,"item_name":"Taco","item_description":"","price":199,"prepareing_time_minutes":45,"category":"Europe ","branchId":1,"stationId":1,"categoryId":3,"medias":[{"id":3,"url":"https://mabaguette.s3.us-east-2.amazonaws.com/Taco_28596.jpeg","key":"-1","type":"data:image/214;base64,","productId":3}],"quantity":0,"productOption":[{"productOptionChoices":[{"id":47,"choice_name":"11a","price":0,"productOptionId":28,"switchEllipse":true}],"id":28,"option_name":"1","option_type":"Required","productId":3}]},{"id":2,"item_name":"Beer","item_description":"","price":69,"prepareing_time_minutes":30,"category":"Drinking ","branchId":1,"stationId":1,"categoryId":1,"medias":[{"id":2,"url":"https://mabaguette.s3.us-east-2.amazonaws.com/Beer_168528.jpeg","key":"200","type":"data:image/214;base64,","productId":2}],"quantity":0,"productOption":[{"productOptionChoices":[],"id":4,"option_name":"Option1","option_type":"Required","productId":2},{"productOptionChoices":[{"id":9,"choice_name":"Choice1","price":10,"productOptionId":5,"switchEllipse":true},{"id":10,"choice_name":"Choice2","price":20,"productOptionId":5,"switchEllipse":true}],"id":5,"option_name":"Option1","option_type":"Required","productId":2},{"productOptionChoices":[{"id":11,"choice_name":"Option c1","price":11,"productOptionId":6,"switchEllipse":true},{"id":12,"choice_name":"Option c2","price":12,"productOptionId":6,"switchEllipse":true},{"id":13,"choice_name":"Option c2","price":22,"productOptionId":6,"switchEllipse":true},{"id":14,"choice_name":"Option c1","price":11,"productOptionId":6,"switchEllipse":true},{"id":15,"choice_name":"Option c3","price":33,"productOptionId":6,"switchEllipse":true}],"id":6,"option_name":"Option2","option_type":"Required","productId":2}]},{"id":2,"item_name":"Beer","item_description":"","price":69,"prepareing_time_minutes":30,"category":"Drinking ","branchId":1,"stationId":1,"categoryId":1,"medias":[{"id":2,"url":"https://mabaguette.s3.us-east-2.amazonaws.com/Beer_168528.jpeg","key":"200","type":"data:image/214;base64,","productId":2}],"quantity":0,"productOption":[{"productOptionChoices":[],"id":4,"option_name":"Option1","option_type":"Required","productId":2},{"productOptionChoices":[{"id":9,"choice_name":"Choice1","price":10,"productOptionId":5,"switchEllipse":false},{"id":10,"choice_name":"Choice2","price":20,"productOptionId":5,"switchEllipse":true}],"id":5,"option_name":"Option1","option_type":"Required","productId":2},{"productOptionChoices":[{"id":11,"choice_name":"Option c1","price":11,"productOptionId":6,"switchEllipse":false},{"id":12,"choice_name":"Option c2","price":12,"productOptionId":6,"switchEllipse":true},{"id":13,"choice_name":"Option c2","price":22,"productOptionId":6,"switchEllipse":false},{"id":14,"choice_name":"Option c1","price":11,"productOptionId":6,"switchEllipse":false},{"id":15,"choice_name":"Option c3","price":33,"productOptionId":6,"switchEllipse":false}],"id":6,"option_name":"Option2","option_type":"Required","productId":2}]}],"table":{"name":"Dear","guestCount":2},"bill":{"id":63,"branchId":5,"guestId":2,"promotionId":2,"qId":4,"invoice_id":"invoice01","orderId":[135,136,137],"cashierId":2,"tableId":36,"transactionId":1,"paymentMethod":"cash","total":"531.00","signature":"https://mabaguette.s3.us-east-2.amazonaws.com/bill_928246.jpeg","guestNumber":2,"tax":"43.92","cash":531,"joinTableId":51,"create_time":"2020-06-12T04:53:32.000Z","status":"paid","remark":"string","change":"0.00","serviceCharge":3,"QRcodeCreditCard":"string","subTotal":488,"joinTime":"2020-06-12T04:50:39.000Z","reservationTime":"2020-06-12T04:50:39.000Z","modifyTime":"2020-06-12T04:53:32.000Z","discount":0,"taxRate":9,"restaurantname":null}} )
 
-window.onload = perform_print;
+if ($_GET("preview") == "receipt") {
+	rewrite_receipt({"branch":{"id":34,"branch_name":"Deep Learning","store_type":1,"phone_number":"0987654321","address":"497 Sukhumvit road, Silom Bangkok…","location":"string","about_us":"No more than 500 alphabets…","covered_photos":{},"opening_hour":"string","opening_days":[{"openTime":"08:00","closeTime":"08:00","visible":true},{"openTime":"08:00","closeTime":"08:00","visible":true},{"openTime":"08:00","closeTime":"08:00","visible":true},{"visible":false,"openTime":"08:00","closeTime":"08:00"},{"visible":false,"openTime":"08:00","closeTime":"08:00"},{"visible":false,"openTime":"08:00","closeTime":"08:00"},{"visible":false,"openTime":"08:00","closeTime":"08:00"}],"restaurantId":2,"photo":null,"coverPhoto":null},"restaurant":{"id":2,"name":"Ada Ramen","description":"","phone_number":"0987498270","email":"Jeremy.G@gmail.com","password":"8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"},"menus":[{"id":3,"item_name":"Taco","item_description":"","price":199,"prepareing_time_minutes":45,"category":"Europe ","branchId":1,"stationId":1,"categoryId":3,"medias":[{"id":3,"url":"https://mabaguette.s3.us-east-2.amazonaws.com/Taco_28596.jpeg","key":"-1","type":"data:image/214;base64,","productId":3}],"quantity":0,"productOption":[{"productOptionChoices":[{"id":47,"choice_name":"11a","price":0,"productOptionId":28,"switchEllipse":true}],"id":28,"option_name":"1","option_type":"Required","productId":3}]},{"id":2,"item_name":"Beer","item_description":"","price":69,"prepareing_time_minutes":30,"category":"Drinking ","branchId":1,"stationId":1,"categoryId":1,"medias":[{"id":2,"url":"https://mabaguette.s3.us-east-2.amazonaws.com/Beer_168528.jpeg","key":"200","type":"data:image/214;base64,","productId":2}],"quantity":0,"productOption":[{"productOptionChoices":[],"id":4,"option_name":"Option1","option_type":"Required","productId":2},{"productOptionChoices":[{"id":9,"choice_name":"Choice1","price":10,"productOptionId":5,"switchEllipse":true},{"id":10,"choice_name":"Choice2","price":20,"productOptionId":5,"switchEllipse":true}],"id":5,"option_name":"Option1","option_type":"Required","productId":2},{"productOptionChoices":[{"id":11,"choice_name":"Option c1","price":11,"productOptionId":6,"switchEllipse":true},{"id":12,"choice_name":"Option c2","price":12,"productOptionId":6,"switchEllipse":true},{"id":13,"choice_name":"Option c2","price":22,"productOptionId":6,"switchEllipse":true},{"id":14,"choice_name":"Option c1","price":11,"productOptionId":6,"switchEllipse":true},{"id":15,"choice_name":"Option c3","price":33,"productOptionId":6,"switchEllipse":true}],"id":6,"option_name":"Option2","option_type":"Required","productId":2}]},{"id":2,"item_name":"Beer","item_description":"","price":69,"prepareing_time_minutes":30,"category":"Drinking ","branchId":1,"stationId":1,"categoryId":1,"medias":[{"id":2,"url":"https://mabaguette.s3.us-east-2.amazonaws.com/Beer_168528.jpeg","key":"200","type":"data:image/214;base64,","productId":2}],"quantity":0,"productOption":[{"productOptionChoices":[],"id":4,"option_name":"Option1","option_type":"Required","productId":2},{"productOptionChoices":[{"id":9,"choice_name":"Choice1","price":10,"productOptionId":5,"switchEllipse":false},{"id":10,"choice_name":"Choice2","price":20,"productOptionId":5,"switchEllipse":true}],"id":5,"option_name":"Option1","option_type":"Required","productId":2},{"productOptionChoices":[{"id":11,"choice_name":"Option c1","price":11,"productOptionId":6,"switchEllipse":false},{"id":12,"choice_name":"Option c2","price":12,"productOptionId":6,"switchEllipse":true},{"id":13,"choice_name":"Option c2","price":22,"productOptionId":6,"switchEllipse":false},{"id":14,"choice_name":"Option c1","price":11,"productOptionId":6,"switchEllipse":false},{"id":15,"choice_name":"Option c3","price":33,"productOptionId":6,"switchEllipse":false}],"id":6,"option_name":"Option2","option_type":"Required","productId":2}]}],"table":{"name":"Dear","guestCount":2},"bill":{"id":63,"branchId":5,"guestId":2,"promotionId":2,"qId":4,"invoice_id":"invoice01","orderId":[135,136,137],"cashierId":2,"tableId":36,"transactionId":1,"paymentMethod":"cash","total":"531.00","signature":"https://mabaguette.s3.us-east-2.amazonaws.com/bill_928246.jpeg","guestNumber":2,"tax":"43.92","cash":531,"joinTableId":51,"create_time":"2020-06-12T04:53:32.000Z","status":"paid","remark":"string","change":"0.00","serviceCharge":3,"QRcodeCreditCard":"string","subTotal":488,"joinTime":"2020-06-12T04:50:39.000Z","reservationTime":"2020-06-12T04:50:39.000Z","modifyTime":"2020-06-12T04:53:32.000Z","discount":0,"taxRate":9,"restaurantname":null}} )
+}
+
+//window.onload = () => perform_print('192.168.1.80');
     </script>
 </body>
 </html>
