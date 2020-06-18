@@ -193,6 +193,10 @@ function returnToReact(msg) {
 }
 
 function returnFailToReact() {
+	printLastType = null;
+	printLastData = null;
+	printLastIpAddress = null;
+	
 	returnToReact({message: "PRINT_FAIL", queue: {type: printLastType, data: printLastData, ip_address: printLastIpAddress}})
 }
 
@@ -216,8 +220,10 @@ function connectPrinter(ip_address) {
 				printers[ip_address] = devobj;
 				
 				let interval = setInterval(()=>{
-					devobj.startMonitor()
-					devobj.stopMonitor()
+					if (printLastIpAddress != null) {
+						devobj.startMonitor()
+						devobj.stopMonitor()
+					}
 				}, 3000);
 				
 				devobj.onreceive = function (res) {
