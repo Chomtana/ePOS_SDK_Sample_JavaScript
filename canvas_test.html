@@ -218,7 +218,7 @@ function connectPrinter(ip_address) {
 				let interval = setInterval(()=>{
 					devobj.startMonitor()
 					devobj.stopMonitor()
-				}, 1000);
+				}, 3000);
 				
 				devobj.onreceive = function (res) {
 					if (res.success) {
@@ -282,6 +282,7 @@ async function perform_print(ip_address) {
 			alert("ERROR: Cannot connect to printer ["+err+"]");
 		}
 		
+		printer.message = ''
 		printer.addTextAlign(printer.ALIGN_CENTER);
 		printer.brightness = 1.0;
 		printer.halftone = printer.HALFTONE_ERROR_DIFFUSION;
