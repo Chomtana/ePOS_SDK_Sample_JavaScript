@@ -171,6 +171,10 @@ const LEFT_RIGHT = `
 	 justify-content: space-between;
 `
 
+let printLastType = null;
+let printLastData = null;
+let printLastIpAddress = null;
+
 function $_GET(name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, '\\$&');
@@ -203,11 +207,18 @@ function connectPrinter(ip_address) {
 				devobj.onreceive = function (res) {
 					if (res.success) {
 						//console.log("Print success");
-						if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage("PRINT_SUCCESS")
+						printLastType = null;
+						printLastData = null;
+						printLastIpAddress = null;
+						
+						if (window.ReactNativeWebView) 
+							window.ReactNativeWebView.postMessage({message: "PRINT_SUCCESS"})
 					} else {
 						alert("ERROR: A printing task has failed [Code: "+res.code+"]")
+						if (window.ReactNativeWebView && printLastData)
+							window.ReactNativeWebView.postMessage({message: "PRINT_SUCCESS", queue: {type: printLastType, data: printLastData, ip_address: printLastIpAddress}})
 					}
-					console.log('Print' + (res.success ? 'Success' : 'Failure') + '\nCode:' + res.code + '\nBattery:' + res.battery);
+					//console.log('Print' + (res.success ? 'Success' : 'Failure') + '\nCode:' + res.code + '\nBattery:' + res.battery);
 				};
 				
 				devobj.onoffline = function () {
@@ -244,14 +255,14 @@ function connectPrinter(ip_address) {
 }
 
 async function perform_print(ip_address) {
+	printLastIpAddress = ip_address;
+	
 	html2canvas(document.querySelector("#print-root"), {
 		useCORS: true,
 		scale: 1.65
 	}).then(async canvas => {
 		//document.body.appendChild(canvas)
 		console.log(canvas.width, canvas.height)
-		
-		
 
 		let printer = await connectPrinter(ip_address);
 		
@@ -296,6 +307,9 @@ function rewrite(html) {
 function rewrite_receipt(receipt) {
 	// receipt menus merge
 	receipt.menus = receipt_menu_merge(receipt.menus)
+	
+	printLastType = "receipt";
+	printLastData = receipt;
 	
 	let html_string = `
 		${receipt.restaurant.logoUrl ? `
